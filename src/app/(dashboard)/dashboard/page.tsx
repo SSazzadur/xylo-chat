@@ -9,8 +9,6 @@ const page = async ({}) => {
 	const session = await getServerSession(authOptions);
 
 	return <pre>{JSON.stringify(session)}</pre>;
-
-	return <Button variant="ghost">Hello</Button>;
 };
 
 export default page;
