@@ -1,8 +1,11 @@
 "use client";
 
-import { CheckIcon, UserPlus, X } from "lucide-react";
-import Image from "next/image";
 import { FC, useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+
+import { CheckIcon, UserPlus, X } from "lucide-react";
 
 interface FriendRequestsProps {
 	incomingFriendRequests: IncomingFriendRequest[];
@@ -10,7 +13,24 @@ interface FriendRequestsProps {
 }
 
 const FriendRequests: FC<FriendRequestsProps> = ({ incomingFriendRequests, sessionId }) => {
+	const router = useRouter();
 	const [friendReqs, setFriendReqs] = useState<IncomingFriendRequest[]>(incomingFriendRequests);
+
+	const acceptFriend = async (senderId: string) => {
+		await axios.post("/api/friends/requests/accept", { id: senderId });
+
+		setFriendReqs(prev => prev.filter(req => req.senderId !== senderId));
+
+		router.refresh();
+	};
+
+	const denyFriend = async (senderId: string) => {
+		await axios.post("/api/friends/requests/deny", { id: senderId });
+
+		setFriendReqs(prev => prev.filter(req => req.senderId !== senderId));
+
+		router.refresh();
+	};
 
 	return (
 		<>
@@ -40,6 +60,7 @@ const FriendRequests: FC<FriendRequestsProps> = ({ incomingFriendRequests, sessi
 							</div>
 						</div>
 						<button
+							onClick={() => acceptFriend(req.senderId)}
 							aria-label="Accept Friend"
 							className="w-8 h-8 bg-indigo-600 hover:bg-indigo-700 grid place-items-center rounded-full transition hover:shadow-md"
 						>
@@ -47,6 +68,7 @@ const FriendRequests: FC<FriendRequestsProps> = ({ incomingFriendRequests, sessi
 						</button>
 
 						<button
+							onClick={() => denyFriend(req.senderId)}
 							aria-label="Deny Friend"
 							className="w-8 h-8 bg-red-600 hover:bg-red-700 grid place-items-center rounded-full transition hover:shadow-md"
 						>
