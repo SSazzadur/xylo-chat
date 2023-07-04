@@ -8,7 +8,11 @@ interface pageProps {}
 const page = async ({}) => {
 	const session = await getServerSession(authOptions);
 
-	return <pre>{JSON.stringify(session)}</pre>;
+	return (
+		<main className="pt-8">
+			<h1 className="font-bold text-5xl mb-8">Dashboard</h1>
+		</main>
+	);
 };
 
 export default page;
