@@ -42,8 +42,6 @@ const page = async ({ params }: PageProps) => {
 	const chatPartner = JSON.parse(chatPartnerString) as User;
 	const initialMessages = await getChatMessages(chatId);
 
-	console.log("chatPartner", chatPartner);
-
 	return (
 		<div className="flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-6rem)]">
 			<div className="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
@@ -73,9 +71,10 @@ const page = async ({ params }: PageProps) => {
 
 			<Messages
 				initialMessages={initialMessages}
-				sessiosId={session.user.id}
+				sessionId={session.user.id}
 				sessionImage={session.user.image}
 				chatPartner={chatPartner}
+				chatId={chatId}
 			/>
 			<ChatInput chatPartner={chatPartner} chatId={chatId} />
 		</div>

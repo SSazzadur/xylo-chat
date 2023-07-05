@@ -1,23 +1,45 @@
 "use client";
 
 import Image from "next/image";
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 
+import { pusherClient } from "@/lib/pusher";
+import { cn, toPusherKey } from "@/lib/utils";
 import { Message } from "@/lib/validations/message";
-import { cn } from "@/lib/utils";
 
 interface MessagesProps {
 	initialMessages: Message[];
-	sessiosId: string;
+	sessionId: string;
 	sessionImage: string | null | undefined;
 	chatPartner: User;
+	chatId: string;
 }
 
-const Messages: FC<MessagesProps> = ({ initialMessages, sessiosId, sessionImage, chatPartner }) => {
+const Messages: FC<MessagesProps> = ({
+	initialMessages,
+	sessionId,
+	sessionImage,
+	chatPartner,
+	chatId,
+}) => {
 	const scrollDownRef = useRef<HTMLDivElement | null>(null);
 
 	const [messages, setMessages] = useState<Message[]>(initialMessages);
+
+	useEffect(() => {
+		pusherClient.subscribe(toPusherKey(`chat:${chatId}`));
+
+		const MessageHandler = (message: Message) => {
+			setMessages(prev => [message, ...prev]);
+		};
+
+		pusherClient.bind("incoming_message", MessageHandler);
+		return () => {
+			pusherClient.unsubscribe(toPusherKey(`chat:${chatId}`));
+			pusherClient.unbind("incoming_message", MessageHandler);
+		};
+	}, [chatId, sessionId]);
 
 	const formatTimeStamp = (timeStamp: number) => {
 		return format(timeStamp, "hh:mm bbb");
@@ -31,7 +53,7 @@ const Messages: FC<MessagesProps> = ({ initialMessages, sessiosId, sessionImage,
 			<div ref={scrollDownRef} />
 
 			{messages.map((message, idx) => {
-				const isCurrentUser = message.senderId === sessiosId;
+				const isCurrentUser = message.senderId === sessionId;
 
 				const hasNextMessageFromSameUser =
 					messages[idx - 1]?.senderId === messages[idx].senderId;
