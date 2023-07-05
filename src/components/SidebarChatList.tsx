@@ -1,7 +1,7 @@
 "use client";
 
 import { chatHrefConstructor } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 
 interface SidebarChatListProps {
@@ -10,6 +10,7 @@ interface SidebarChatListProps {
 }
 
 const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
+	const router = useRouter();
 	const pathName = usePathname();
 	const [unseenMessages, setUnseenMessages] = useState<Message[]>([]);
 
