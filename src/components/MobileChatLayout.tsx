@@ -38,9 +38,9 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
 	return (
 		<div className="fixed bg-zinc-50 border-b border-zinc-200 top-0 inset-x-0 py-2 px-4">
 			<div className="w-full flex justify-between items-center">
-				<Link href="/dashboard" className={buttonVariants({ variant: "ghost" })}>
+				<a href="/dashboard" className={buttonVariants({ variant: "ghost" })}>
 					<Icons.Logo className="h-6 w-auto text-indigo-600" />
-				</Link>
+				</a>
 				<Button onClick={() => setOpen(true)} className="gap-4">
 					Menu <Menu className="h-6 w-6" />
 				</Button>
