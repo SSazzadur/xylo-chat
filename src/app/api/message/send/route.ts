@@ -6,6 +6,7 @@ import { toPusherKey } from "@/lib/utils";
 import { Message, messageValidator } from "@/lib/validations/message";
 import { nanoid } from "nanoid";
 import { getServerSession } from "next-auth";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: Request) {
 	try {
@@ -16,15 +17,11 @@ export async function POST(req: Request) {
 
 		const [userId1, userId2] = chatId.split("--");
 
-		if (session.user.id !== userId1 && session.user.id !== userId2)
-			return new Response("Unauthorized", { status: 401 });
+		if (session.user.id !== userId1 && session.user.id !== userId2) return new Response("Unauthorized", { status: 401 });
 
 		const friendId = session.user.id === userId1 ? userId2 : userId1;
 
-		const friendList = (await fetchRedis(
-			"smembers",
-			`user:${session.user.id}:friends`
-		)) as string[];
+		const friendList = (await fetchRedis("smembers", `user:${session.user.id}:friends`)) as string[];
 		const isFriend = friendList.includes(friendId);
 
 		if (!isFriend) return new Response("Unauthorized", { status: 401 });
@@ -57,6 +54,7 @@ export async function POST(req: Request) {
 			member: JSON.stringify(message),
 		});
 
+		revalidatePath(`/dashboard/chat/${chatId}`);
 		return new Response("OK");
 	} catch (error) {
 		if (error instanceof Error) {
